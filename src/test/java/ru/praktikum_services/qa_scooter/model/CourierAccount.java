@@ -1,4 +1,4 @@
-package ru.praktikum_services.qa_scooter.tests;
+package ru.praktikum_services.qa_scooter.model;
 
 import com.google.gson.annotations.Expose;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,6 +33,10 @@ public class CourierAccount {
     public void setLogin(String login)
     {
         this.login=login;
+    }
+    public void setFirstName(String firstName)
+    {
+        this.firstName=firstName;
     }
     public String getPassword()
     {
