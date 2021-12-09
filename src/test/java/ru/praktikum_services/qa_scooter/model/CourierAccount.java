@@ -1,17 +1,18 @@
 package ru.praktikum_services.qa_scooter.model;
 
-import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class CourierAccount {
-
-    private String login=null;
+public class CourierAccount  {
+    @SerializedName("login")
+    private String username =null;
     private String password=null;
     private String firstName=null;
+
     public CourierAccount(boolean isLoginNull, boolean isPasswordNull, boolean isFirstNameNull)
     {
         if (!isLoginNull) {
-            login = RandomStringUtils.randomAlphabetic(10);
+            username = RandomStringUtils.randomAlphabetic(10);
         }
         if (!isPasswordNull)
         {
@@ -26,24 +27,21 @@ public class CourierAccount {
 
     }
 
-    public String getLogin()
+    public String getUsername()
     {
-        return  login;
+        return username;
     }
-    public void setLogin(String login)
+
+    public void setUsername(String username)
     {
-        this.login=login;
+        this.username = username;
     }
-    public void setFirstName(String firstName)
+
+    public void setPassword(String password)
     {
-        this.firstName=firstName;
+        this.password=password;
     }
-    public String getPassword()
-    {
-        return  password;
-    }
-    public String getFirstNamed()
-    {
-        return  firstName;
-    }
+
+
+
 }

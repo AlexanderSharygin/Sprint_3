@@ -10,7 +10,7 @@ import static io.restassured.RestAssured.*;
 
 public class CourierAccountActions {
 
-    private ArrayList<CourierAccount> successfullyRegisteredAccounts = new ArrayList<>();
+    private ArrayList<String> registeredAccountsIds = new ArrayList<>();
 
     private String serializeCourierAccount(CourierAccount courierAccount)
     {
@@ -19,9 +19,8 @@ public class CourierAccountActions {
                 .create();
         return  gson.toJson(courierAccount);
     }
-    public Response registerNewCourierLoginAndGetResponse(CourierAccount courierAccount)
+    public Response registerNewCourierAccountAndGetResponse(CourierAccount courierAccount)
     {
-
         String json = serializeCourierAccount(courierAccount);
         Response response = given()
                 .header("Content-type", "application/json")
@@ -31,29 +30,46 @@ public class CourierAccountActions {
                 .post("https://qa-scooter.praktikum-services.ru/api/v1/courier");
 
        if(response.statusCode()==201) {
-           successfullyRegisteredAccounts.add(courierAccount);
+           Response loginResponse = loginCourierAndGetResponse(courierAccount);
+           registeredAccountsIds.add(getCourierAccountIdFromLoginResponse(loginResponse));
+
        }
+        return response;
+    }
+    public Response loginCourierAndGetResponse(CourierAccount courierAccount)
+    {
+        String json = serializeCourierAccount(courierAccount);
+        Response response = given()
+                .header("Content-type", "application/json")
+                .and()
+                .body(json)
+                .when()
+                .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login");
+        return response;
+
+
+    }
+    public String getCourierAccountIdFromLoginResponse(Response loginResponse)
+    {
+        JsonPath jsonPath = new JsonPath(loginResponse.thenReturn().getBody().asString());
+       return jsonPath.getString("id");
+    }
+
+    public Response deleteCourierAndGetResponse(String accountId)
+    {
+        Response response = given().delete("https://qa-scooter.praktikum-services.ru/api/v1/courier/"+accountId);
+        registeredAccountsIds.remove(accountId);
         return response;
     }
 
     public void removeAllCreatedAccounts() throws RemoveTestDataException
     {
-        for(int i = 0; i< successfullyRegisteredAccounts.size(); i++)
+        while (!registeredAccountsIds.isEmpty())
         {
-           String json = serializeCourierAccount(successfullyRegisteredAccounts.get(i));
-           String responseBody = given()
-                    .header("Content-type", "application/json")
-                    .and()
-                    .body(json)
-                    .when()
-                    .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login").thenReturn().getBody().asString();
-            JsonPath jsonPath = new JsonPath(responseBody);
-            String accountId = jsonPath.getString("id");
-            Response response = given().delete("https://qa-scooter.praktikum-services.ru/api/v1/courier/"+accountId);
+            Response response = deleteCourierAndGetResponse(registeredAccountsIds.get(0));
             if(response.statusCode()!=200) {
                 throw  new RemoveTestDataException("Ошибка при удалении тестовых данных из базы данных");
             }
-
         }
 
     }

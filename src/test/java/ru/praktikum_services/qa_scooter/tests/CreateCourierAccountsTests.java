@@ -6,59 +6,57 @@ import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
 import ru.praktikum_services.qa_scooter.model.CourierAccountActions;
 import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
-
 import static org.hamcrest.Matchers.equalTo;
 
-public class CreateCourierTests {
+public class CreateCourierAccountsTests {
 
     private static CourierAccountActions courierAccountActions = new CourierAccountActions();
 
 
-
     @Test
-    public void registerNewCourierLoginWithUniqueLoginSuccess()  {
+    public void registerNewCourierAccountWithUniqueUsernameSuccess()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
-        Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
+        Response response = courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
         response.then().assertThat().statusCode(201).and().body("ok", equalTo(true));
 
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyPasswordBadRequest()  {
+    public void registerNewCourierAccountWithEmptyPasswordBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(false, true, false);
-        Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
+        Response response = courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
         response.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
 
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyLoginBadRequest()  {
+    public void registerNewCourierAccountWithEmptyUsernameBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(true, false, false);
-        Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
+        Response response = courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
         response.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
 
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyFirstNameSuccess()  {
+    public void registerNewCourierAccountWithEmptyFirstNameSuccess()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
+        Response response = courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
         response.then().assertThat().statusCode(201).and().body("ok", equalTo(true));
 
     }
 
     @Test
-    public void registerNewCourierLoginWithDuplicatedLoginBadRequest()  {
+    public void registerNewCourierAccountWithDuplicatedUsernameBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
-        courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
+        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
         CourierAccount accountWithTheSameLogin = new CourierAccount(false, false, false);
-        accountWithTheSameLogin.setLogin(testAccount.getLogin());
-        Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(accountWithTheSameLogin);
+        accountWithTheSameLogin.setUsername(testAccount.getUsername());
+        Response response = courierAccountActions.registerNewCourierAccountAndGetResponse(accountWithTheSameLogin);
         response.then().assertThat().statusCode(409).and().body("message", equalTo("Этот логин уже используется"));
     }
 
