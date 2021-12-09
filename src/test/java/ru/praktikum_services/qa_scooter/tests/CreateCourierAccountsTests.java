@@ -16,7 +16,7 @@ public class CreateCourierTests {
 
 
     @Test
-    public void registerNewCourierLoginWithUniqueLoginSuccess() {
+    public void registerNewCourierLoginWithUniqueLoginSuccess()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
         Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
@@ -25,7 +25,7 @@ public class CreateCourierTests {
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyPasswordBadRequest() {
+    public void registerNewCourierLoginWithEmptyPasswordBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(false, true, false);
         Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
@@ -34,7 +34,7 @@ public class CreateCourierTests {
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyLoginBadRequest() {
+    public void registerNewCourierLoginWithEmptyLoginBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(true, false, false);
         Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
@@ -43,7 +43,7 @@ public class CreateCourierTests {
     }
 
     @Test
-    public void registerNewCourierLoginWithEmptyFirstNameSuccess() {
+    public void registerNewCourierLoginWithEmptyFirstNameSuccess()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
         Response response = courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
@@ -52,7 +52,7 @@ public class CreateCourierTests {
     }
 
     @Test
-    public void registerNewCourierLoginWithDuplicatedLoginBadRequest() {
+    public void registerNewCourierLoginWithDuplicatedLoginBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
         courierAccountActions.registerNewCourierLoginAndGetResponse(testAccount);
