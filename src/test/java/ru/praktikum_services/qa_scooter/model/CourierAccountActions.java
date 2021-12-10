@@ -12,23 +12,14 @@ public class CourierAccountActions {
 
     private ArrayList<String> registeredAccountsIds = new ArrayList<>();
 
-    private String serializeCourierAccount(CourierAccount courierAccount)
-    {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
-        return  gson.toJson(courierAccount);
-    }
     public Response registerNewCourierAccountAndGetResponse(CourierAccount courierAccount)
     {
-        String json = serializeCourierAccount(courierAccount);
         Response response = given()
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierAccount)
                 .when()
                 .post("https://qa-scooter.praktikum-services.ru/api/v1/courier");
-
        if(response.statusCode()==201) {
            Response loginResponse = loginCourierAndGetResponse(courierAccount);
            registeredAccountsIds.add(getCourierAccountIdFromLoginResponse(loginResponse));
@@ -38,11 +29,10 @@ public class CourierAccountActions {
     }
     public Response loginCourierAndGetResponse(CourierAccount courierAccount)
     {
-        String json = serializeCourierAccount(courierAccount);
         Response response = given()
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierAccount)
                 .when()
                 .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login");
         return response;
@@ -57,7 +47,7 @@ public class CourierAccountActions {
 
     public Response deleteCourierAndGetResponse(String accountId)
     {
-        Response response = given().delete("https://qa-scooter.praktikum-services.ru/api/v1/courier/"+accountId);
+        Response response = given().delete("https://qa-scooter.praktikum-services.ru/api/v1/courier/{id}", accountId);
         registeredAccountsIds.remove(accountId);
         return response;
     }
