@@ -31,6 +31,7 @@ public class CourierAccount  {
     {
         return username;
     }
+    public String getPassword() { return password; }
 
     public void setUsername(String username)
     {

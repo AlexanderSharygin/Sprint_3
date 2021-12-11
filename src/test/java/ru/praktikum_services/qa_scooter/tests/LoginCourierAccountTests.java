@@ -2,73 +2,80 @@ package ru.praktikum_services.qa_scooter.tests;
 
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.AfterClass;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.CourierAccountActions;
 import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
-
+import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class LoginCourierAccountTests {
 
 
-
-    private static CourierAccountActions courierAccountActions = new CourierAccountActions();
-
     @Test
-    public void loginCourierAccountCorrectCreditsSuccess() {
+    public void loginCourierAccountCorrectCreditsSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
-        Response response = courierAccountActions.loginCourierAndGetResponse(testAccount);
+       registerNewCourierAccountAndGetResponse(testAccount);
+        Response response = loginCourierAndGetResponse(testAccount);
         response.then().assertThat().statusCode(200).and().body("id", notNullValue());
-
+        if (response.statusCode()==201)
+        {
+            deleteTestDataFromDB(testAccount);
+        }
     }
+
     @Test
-    public void loginCourierAccountWithoutPasswordBadRequest() {
+    public void loginCourierAccountWithoutPasswordBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
+        registerNewCourierAccountAndGetResponse(testAccount);
+        String correctPassword = testAccount.getPassword();
         testAccount.setPassword("");
-        Response response = courierAccountActions.loginCourierAndGetResponse(testAccount);
-        response.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-
+        Response loginResponse = loginCourierAndGetResponse(testAccount);
+        loginResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+        testAccount.setPassword(correctPassword);
+        deleteTestDataFromDB(testAccount);
     }
+
     @Test
-    public void loginCourierAccountWithoutUserNameBadRequest() throws CloneNotSupportedException {
+    public void loginCourierAccountWithoutUserNameBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
+        registerNewCourierAccountAndGetResponse(testAccount);
+        String correctUsername = testAccount.getUsername();
         testAccount.setUsername("");
-        Response response = courierAccountActions.loginCourierAndGetResponse(testAccount);
-        response.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+        Response loginResponse = loginCourierAndGetResponse(testAccount);
+        loginResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+        testAccount.setUsername(correctUsername);
+        deleteTestDataFromDB(testAccount);
 
     }
 
     @Test
-    public void loginCourierAccountWithWrongPasswordBadRequest()  {
+    public void loginCourierAccountWithWrongPasswordBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
+        registerNewCourierAccountAndGetResponse(testAccount);
+        String correctPassword = testAccount.getPassword();
         testAccount.setPassword(RandomStringUtils.randomAlphabetic(10));
-        Response response = courierAccountActions.loginCourierAndGetResponse(testAccount);
-        response.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
-
+        Response loginResponse = loginCourierAndGetResponse(testAccount);
+        loginResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
+        testAccount.setPassword(correctPassword);
+        deleteTestDataFromDB(testAccount);
     }
+
     @Test
-    public void loginCourierAccountWithWrongUserNameBadRequest()  {
+    public void loginCourierAccountWithWrongUserNameBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
-        courierAccountActions.registerNewCourierAccountAndGetResponse(testAccount);
+        registerNewCourierAccountAndGetResponse(testAccount);
+        String correctUsername = testAccount.getUsername();
         testAccount.setUsername(RandomStringUtils.randomAlphabetic(10));
-        Response response = courierAccountActions.loginCourierAndGetResponse(testAccount);
-        response.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
+        Response loginResponse = loginCourierAndGetResponse(testAccount);
+        loginResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
+        testAccount.setUsername(correctUsername);
+        deleteTestDataFromDB(testAccount);
+    }
 
-    }
-    @AfterClass
-    public static void cleanDB() throws RemoveTestDataException {
-        courierAccountActions.removeAllCreatedAccounts();
-    }
 }
