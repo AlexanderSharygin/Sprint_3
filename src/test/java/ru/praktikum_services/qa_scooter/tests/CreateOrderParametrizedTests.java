@@ -1,0 +1,58 @@
+package ru.praktikum_services.qa_scooter.tests;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import ru.praktikum_services.qa_scooter.model.Order;
+import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
+import static org.hamcrest.Matchers.notNullValue;
+import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
+
+
+@RunWith(Parameterized.class)
+public class CreateOrderParametrizedTests {
+
+    private final String[] color;
+    private final int expectedStatus;
+    private final String expectedBody;
+
+    public CreateOrderParametrizedTests(String [] color, int expectedStatus, String expectedBody)
+    {
+        this.color=color;
+        this.expectedStatus = expectedStatus;
+        this.expectedBody= expectedBody;
+
+    }
+
+    @Parameterized.Parameters
+    public static Object[][] getDataForTests() {
+        return new Object[][]{
+                {new String[]{"BLACK"}, 201, "track"},
+                {new String[]{"GREY"}, 201, "track"},
+                {new String[]{"BLACK, GREY"}, 201, "track"},
+                {new String[]{"BLACK, GREY"}, 201, "track"},
+                {null, 201, "track"}
+        };
+    }
+
+
+    @Test
+    public void createNewOrderSuccess() throws RemoveTestDataException {
+        Order order = new Order(color);
+      Response createResponse = createNewOrderAndGetResponse(order);
+        createResponse.then().assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue());
+        if (createResponse.statusCode()==201)
+        {
+            JsonPath jsonPath = new JsonPath(createResponse.thenReturn().getBody().asString());
+            String orderTrackNumber = jsonPath.getString("track");
+            cancelOrderByTrackNumberAndGetResponse(orderTrackNumber);
+
+        }
+    }
+
+
+
+
+}
