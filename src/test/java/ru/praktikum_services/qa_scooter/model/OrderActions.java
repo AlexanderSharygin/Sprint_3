@@ -52,4 +52,11 @@ public class OrderActions {
       return response;
 
     }
+
+    public static String getOrderTrackNumberFromCreateOrderResponse(Response response)
+    {
+        JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());
+        return jsonPath.getString("track");
+
+    }
 }
