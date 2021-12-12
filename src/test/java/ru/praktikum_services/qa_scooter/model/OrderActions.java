@@ -74,13 +74,15 @@ public class OrderActions {
                 .get("https://qa-scooter.praktikum-services.ru/api/v1/orders");
 
     }
-    public static Response completeOrderAndGetResponse(String orderId)
-    {
-        return given()
+    public static void completeOrderAndGetResponse(String orderId) throws CompleteOrderException {
+       Response response =given()
                 .header("Content-type", "application/json")
                 .and()
                 .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/finish/{orderId}", orderId);
 
+        if(response.statusCode()!=200) {
+            throw  new CompleteOrderException("Ошибка при завершении заказа");
+        }
     }
 
 }
