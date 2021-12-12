@@ -10,8 +10,8 @@ public class Order {
     private final String LASTNAME = "Test";
     @SerializedName("address")
     private final String ADDRESS = "Konoha, 142 apt.";
-    @SerializedName("metroStation")
-    private final int METROSTATION = 4;
+
+    private final int metroStation;
     @SerializedName("phone")
     private final String PHONE = "+7 800 355 35 35";
     @SerializedName("rentTime")
@@ -22,9 +22,10 @@ public class Order {
     private final String COMMENT = "Test order";
     String [] color;
 
-    public Order (String [] color)
+    public Order (String [] color, int metroStationId)
     {
         this.color=color;
+        this.metroStation=metroStationId;
 
     }
 

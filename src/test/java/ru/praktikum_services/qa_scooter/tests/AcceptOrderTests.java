@@ -13,7 +13,7 @@ import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 public class AcceptOrderTests {
     @Test
     public void acceptNewCorrectOrderSuccess() throws RemoveTestDataException {
-        Order order = new Order(new String[]{"BLACK"});
+        Order order = new Order(new String[]{"BLACK"},4);
         CourierAccount courierAccount = new CourierAccount(false, false, false);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
         String orderTrackNumber = getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
@@ -41,7 +41,7 @@ public class AcceptOrderTests {
     }
     @Test
     public void acceptNewCorrectOrderWithoutCourierIdConflict()  {
-        Order order = new Order(new String[]{"BLACK"});
+        Order order = new Order(new String[]{"BLACK"},4);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
         String orderTrackNumber = getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
         String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
@@ -68,7 +68,7 @@ public class AcceptOrderTests {
 
     @Test
     public void acceptNewCorrectOrderWithWrongCourierIdNotFound()  {
-        Order order = new Order(new String[]{"BLACK"});
+        Order order = new Order(new String[]{"BLACK"},4);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
         String orderTrackNumber = getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
         String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
@@ -80,7 +80,7 @@ public class AcceptOrderTests {
 
     @Test
     public void acceptAlreadyAcceptedOrderConflict() throws RemoveTestDataException {
-        Order order = new Order(new String[]{"BLACK"});
+        Order order = new Order(new String[]{"BLACK"},4);
         CourierAccount courierAccount = new CourierAccount(false, false, false);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
         String orderTrackNumber =getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
@@ -89,8 +89,8 @@ public class AcceptOrderTests {
         Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
         String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
         acceptOrderAndGetResponse(orderId, courierId);
-        Response acceptedOrderresponse = acceptOrderAndGetResponse(orderId, courierId);
-        acceptedOrderresponse.then().assertThat().statusCode(409).and().body("message", equalTo("Этот заказ уже в работе"));
+        Response acceptedOrderResponse = acceptOrderAndGetResponse(orderId, courierId);
+        acceptedOrderResponse.then().assertThat().statusCode(409).and().body("message", equalTo("Этот заказ уже в работе"));
         deleteTestDataFromDB(courierAccount);
 
     }

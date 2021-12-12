@@ -40,7 +40,7 @@ public class CreateOrderParametrizedTests {
 
     @Test
     public void createNewOrderSuccess() throws RemoveTestDataException {
-        Order order = new Order(color);
+        Order order = new Order(color, 4);
       Response createResponse = createNewOrderAndGetResponse(order);
         createResponse.then().assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue());
         if (createResponse.statusCode()==201)

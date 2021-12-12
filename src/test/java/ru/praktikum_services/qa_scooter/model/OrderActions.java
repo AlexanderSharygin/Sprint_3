@@ -3,6 +3,8 @@ package ru.praktikum_services.qa_scooter.model;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+
+
 import static io.restassured.RestAssured.given;
 
 public class OrderActions {
@@ -44,12 +46,11 @@ public class OrderActions {
     public static Response acceptOrderAndGetResponse(String orderId, String courierId)
     {
 
-        Response response =  given()
+        return given()
                 .header("Content-type", "application/json")
                 .and()
                 .when().queryParam("courierId", courierId)
                 .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/accept/{orderId}", orderId);
-      return response;
 
     }
 
@@ -59,4 +60,27 @@ public class OrderActions {
         return jsonPath.getString("track");
 
     }
+
+
+    public static Response getOrderListForCourier(String courierId, String stationsId, String limit, String page)
+    {
+
+        return given()
+                .and()
+                .when().queryParam("courierId", courierId)
+                .queryParam("nearestStation", stationsId)
+                .queryParam("limit", limit)
+                .queryParam("page", page)
+                .get("https://qa-scooter.praktikum-services.ru/api/v1/orders");
+
+    }
+    public static Response completeOrderAndGetResponse(String orderId)
+    {
+        return given()
+                .header("Content-type", "application/json")
+                .and()
+                .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/finish/{orderId}", orderId);
+
+    }
+
 }
