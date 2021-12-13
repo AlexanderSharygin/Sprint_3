@@ -13,11 +13,11 @@ import static org.hamcrest.Matchers.*;
 import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.deleteTestDataFromDB;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
-import static ru.praktikum_services.qa_scooter.model.OrderActions.acceptOrderAndGetResponse;
+import static ru.praktikum_services.qa_scooter.model.OrderActions.acceptOrderByIdAndGetResponse;
 
 public class GetOrdersListTests {
     @Test
-    public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSizeSuccess() throws RemoveTestDataException, CompleteOrderException {
+    public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
@@ -31,23 +31,23 @@ public class GetOrdersListTests {
         //accept/complete orders (to assign orders for the certain courier)
         for (int i = 0; i < orders.size(); i++) {
             Response createdOrderResponse = createNewOrderAndGetResponse(orders.get(i));
-            String orderTrackNumber = getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
+            String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
             String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-            acceptOrderAndGetResponse(orderId, courierId);
+            acceptOrderByIdAndGetResponse(orderId, courierId);
          if (i<(orders.size()/2))
           {
-            completeOrderAndGetResponse(orderId);
+            completeOrderByOrderIdAndGetResponse(orderId);
           }
         }
         // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrderListForCourier(courierId, null, null, null);
+        Response getOrdersResponse = getOrdersListForCourier(courierId, null, null, null);
         getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
        //remove test data from DB
         deleteTestDataFromDB(courierAccount);
 
     }
     @Test
-    public void getOrdersListForAnyCourierAndCheckReceivedListSizeSuccess() throws RemoveTestDataException {
+    public void getOrdersListForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
         //add new test data (orders list)
        ArrayList<Order> orders = new ArrayList<>(10);
        ArrayList<String> trackNumbers = new ArrayList<>();
@@ -61,7 +61,7 @@ public class GetOrdersListTests {
         }
 
         // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrderListForCourier("", null, null, null);
+        Response getOrdersResponse = getOrdersListForCourier("", null, null, null);
         getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(greaterThanOrEqualTo(10)));
 
         //remove test data from DB
@@ -72,7 +72,7 @@ public class GetOrdersListTests {
     }
 
     @Test
-    public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSizeSuccess() throws RemoveTestDataException, CompleteOrderException {
+    public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
@@ -96,18 +96,18 @@ public class GetOrdersListTests {
         //accept/complete orders (to assign orders for the certain courier)
         for (int i = 0; i < orders.size(); i++) {
             Response createdOrderResponse = createNewOrderAndGetResponse(orders.get(i));
-            String orderTrackNumber = getOrderTrackNumberFromCreateOrderResponse(createdOrderResponse);
+            String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
             String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-            acceptOrderAndGetResponse(orderId, courierId);
+            acceptOrderByIdAndGetResponse(orderId, courierId);
             if (i<(orders.size()/2))
             {
-               completeOrderAndGetResponse(orderId);
+               completeOrderByOrderIdAndGetResponse(orderId);
 
             }
         }
 
         // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrderListForCourier(courierId, "[\"5\", \"6\"]", null, null);
+        Response getOrdersResponse = getOrdersListForCourier(courierId, "[\"5\", \"6\"]", null, null);
         getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(8));
         //remove test data from DB
         deleteTestDataFromDB(courierAccount);
@@ -115,7 +115,7 @@ public class GetOrdersListTests {
     }
 
     @Test
-    public void getListWithTenOrdersAvailableForAnyCourierAndCheckReceivedListSizeSuccess() throws RemoveTestDataException {
+    public void getOrdersListAvailableForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
         ArrayList<String> trackNumbers = new ArrayList<>();
@@ -129,7 +129,7 @@ public class GetOrdersListTests {
         }
 
         // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrderListForCourier("", null, "10", "0");
+        Response getOrdersResponse = getOrdersListForCourier("", null, "10", "0");
         getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
 
         //remove test data from DB
@@ -140,7 +140,7 @@ public class GetOrdersListTests {
     }
 
     @Test
-    public void getListWithTenOrdersAvailableForAnyCourierNearStationAndCheckReceivedListSizeSuccess() throws RemoveTestDataException {
+    public void getTenOrdersAvailableForAnyCourierNearStationAndCheckReceivedListSuccess() throws RemoveTestDataException {
 
         //add new test data (orders list)
         ArrayList<Order> orders = new ArrayList<>(10);
@@ -155,7 +155,7 @@ public class GetOrdersListTests {
         }
 
         // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrderListForCourier("", "[\"15\"]", "10", "0");
+        Response getOrdersResponse = getOrdersListForCourier("", "[\"15\"]", "10", "0");
         getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
 
         //remove test data from DB

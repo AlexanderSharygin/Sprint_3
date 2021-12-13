@@ -54,7 +54,7 @@ public class CreateCourierAccountsTests {
     }
 
     @Test
-    public void registerNewCourierAccountWithDuplicatedUsernameBadRequest()  {
+    public void registerNewCourierAccountWithDuplicatedUsernameConflict()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
         registerNewCourierAccountAndGetResponse(testAccount);

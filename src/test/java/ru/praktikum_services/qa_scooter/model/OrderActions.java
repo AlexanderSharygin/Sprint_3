@@ -19,50 +19,17 @@ public class OrderActions {
             .when()
             .post("https://qa-scooter.praktikum-services.ru/api/v1/orders");
     }
-    public static void cancelOrderByTrackNumberAndGetResponse(String orderTrackNumber) throws RemoveTestDataException
-    {
-       Response response = given()
-                .and()
-                .when()
-                .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/cancel/?track={track}", orderTrackNumber);
-        if(response.statusCode()!=200) {
-            throw  new RemoveTestDataException("Ошибка при удалении тестовых данных из базы данных");
-        }
-    }
-
-    public static String getOrderIdByOrderTrackNumber(String orderTrackNumber)
+    public static Response getOrderByTrackNumberAndGetResponse(String orderTrackNumber)
     {
 
-        Response response =  given()
+        return  given()
                 .header("Content-type", "application/json")
                 .and()
                 .when().queryParam("t", orderTrackNumber)
                 .get("https://qa-scooter.praktikum-services.ru/api/v1/orders/track");
-        JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());
-        return jsonPath.getString("order.id");
-
     }
 
-    public static Response acceptOrderAndGetResponse(String orderId, String courierId)
-    {
-
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .when().queryParam("courierId", courierId)
-                .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/accept/{orderId}", orderId);
-
-    }
-
-    public static String getOrderTrackNumberFromCreateOrderResponse(Response response)
-    {
-        JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());
-        return jsonPath.getString("track");
-
-    }
-
-
-    public static Response getOrderListForCourier(String courierId, String stationsId, String limit, String page)
+    public static Response getOrdersListForCourier(String courierId, String stationsId, String limit, String page)
     {
 
         return given()
@@ -74,8 +41,18 @@ public class OrderActions {
                 .get("https://qa-scooter.praktikum-services.ru/api/v1/orders");
 
     }
-    public static void completeOrderAndGetResponse(String orderId) throws CompleteOrderException {
-       Response response =given()
+    public static Response acceptOrderByIdAndGetResponse(String orderId, String courierId)
+    {
+
+        return given()
+                .header("Content-type", "application/json")
+                .and()
+                .when().queryParam("courierId", courierId)
+                .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/accept/{orderId}", orderId);
+    }
+
+    public static void completeOrderByOrderIdAndGetResponse(String orderId) throws CompleteOrderException {
+        Response response =given()
                 .header("Content-type", "application/json")
                 .and()
                 .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/finish/{orderId}", orderId);
@@ -84,5 +61,37 @@ public class OrderActions {
             throw  new CompleteOrderException("Ошибка при завершении заказа");
         }
     }
+
+    public static void cancelOrderByTrackNumberAndGetResponse(String orderTrackNumber) throws RemoveTestDataException
+    {
+       Response response = given()
+                .and()
+                .when()
+                .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/cancel/?track={track}", orderTrackNumber);
+        if(response.statusCode()!=200) {
+            throw  new RemoveTestDataException("Ошибка при удалении тестовых данных из базы данных");
+        }
+    }
+
+
+    public static String getOrderIdByOrderTrackNumber(String orderTrackNumber)
+    {
+
+        Response response = getOrderByTrackNumberAndGetResponse(orderTrackNumber);
+        JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());
+        return jsonPath.getString("order.id");
+
+    }
+
+
+    public static String getOrderTrackNumberFromCreatedOrderResponse(Response response)
+    {
+        JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());
+        return jsonPath.getString("track");
+    }
+
+
+
+
 
 }
