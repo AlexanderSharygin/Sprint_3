@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -13,6 +15,7 @@ public class LoginCourierAccountTests {
 
 
     @Test
+    @DisplayName("Login with correct username/password")
     public void loginCourierAccountCorrectCreditsSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -26,9 +29,10 @@ public class LoginCourierAccountTests {
     }
 
     @Test
+    @DisplayName("Login without password")
     public void loginCourierAccountWithoutPasswordBadRequest() throws RemoveTestDataException {
 
-        CourierAccount testAccount = new CourierAccount(false, false, true);
+       CourierAccount testAccount = new CourierAccount(false, false, true);
         registerNewCourierAccountAndGetResponse(testAccount);
         String correctPassword = testAccount.getPassword();
         testAccount.setPassword("");
@@ -39,6 +43,7 @@ public class LoginCourierAccountTests {
     }
 
     @Test
+    @DisplayName("Login without username")
     public void loginCourierAccountWithoutUserNameBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -53,6 +58,7 @@ public class LoginCourierAccountTests {
     }
 
     @Test
+    @DisplayName("Login without username")
     public void loginCourierAccountWithWrongPasswordBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -66,6 +72,7 @@ public class LoginCourierAccountTests {
     }
 
     @Test
+    @DisplayName("Login with not existed username")
     public void loginCourierAccountWithWrongUserNameBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);

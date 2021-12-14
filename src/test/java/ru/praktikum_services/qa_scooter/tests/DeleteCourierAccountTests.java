@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
@@ -14,6 +15,7 @@ public class DeleteCourierAccountTests {
 
 
     @Test
+    @DisplayName("Delete courier account by correct ID")
     public void deleteCourierAccountByCorrectIdSuccess()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -25,6 +27,7 @@ public class DeleteCourierAccountTests {
 
     }
     @Test
+    @DisplayName("Delete courier account without ID")
     public void deleteCourierAccountWithEmptyIdBadRequest() {
 
 
@@ -33,6 +36,7 @@ public class DeleteCourierAccountTests {
 
     }
     @Test
+    @DisplayName("Delete courier account by wrong ID")
     public void deleteCourierAccountWithWrongIdBadRequest() {
 
         int id  = (1000000 + (int) (Math.random() * 2000000));

@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.model;
 
+import io.qameta.allure.Step;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
@@ -8,7 +9,7 @@ import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
 
 public class OrderActions {
-
+    @Step("Create new order, return response for request")
     public static Response createNewOrderAndGetResponse(Order order)
     {
 
@@ -19,6 +20,7 @@ public class OrderActions {
             .when()
             .post("https://qa-scooter.praktikum-services.ru/api/v1/orders");
     }
+    @Step("Get order by TrackNumber, return response for request")
     public static Response getOrderByTrackNumberAndGetResponse(String orderTrackNumber)
     {
 
@@ -28,7 +30,7 @@ public class OrderActions {
                 .when().queryParam("t", orderTrackNumber)
                 .get("https://qa-scooter.praktikum-services.ru/api/v1/orders/track");
     }
-
+    @Step("Get order list, return response for request")
     public static Response getOrdersListForCourier(String courierId, String stationsId, String limit, String page)
     {
 
@@ -41,6 +43,7 @@ public class OrderActions {
                 .get("https://qa-scooter.praktikum-services.ru/api/v1/orders");
 
     }
+    @Step("Accept order by Id, return response for request")
     public static Response acceptOrderByIdAndGetResponse(String orderId, String courierId)
     {
 
@@ -50,7 +53,7 @@ public class OrderActions {
                 .when().queryParam("courierId", courierId)
                 .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/accept/{orderId}", orderId);
     }
-
+    @Step("Complete order by Id, return response for request")
     public static void completeOrderByOrderIdAndGetResponse(String orderId) throws CompleteOrderException {
         Response response =given()
                 .header("Content-type", "application/json")
@@ -61,7 +64,7 @@ public class OrderActions {
             throw  new CompleteOrderException("Ошибка при завершении заказа");
         }
     }
-
+    @Step("Delete order that was created for testing purpose")
     public static void cancelOrderByTrackNumberAndGetResponse(String orderTrackNumber) throws RemoveTestDataException
     {
        Response response = given()
@@ -73,7 +76,7 @@ public class OrderActions {
         }
     }
 
-
+    @Step("Get order id by order TrackNumber")
     public static String getOrderIdByOrderTrackNumber(String orderTrackNumber)
     {
 
@@ -83,7 +86,7 @@ public class OrderActions {
 
     }
 
-
+    @Step("Get order TrackNumber from CreateOrder request response")
     public static String getOrderTrackNumberFromCreatedOrderResponse(Response response)
     {
         JsonPath jsonPath = new JsonPath(response.thenReturn().getBody().asString());

@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
@@ -11,6 +12,7 @@ public class CreateCourierAccountsTests {
 
 
     @Test
+    @DisplayName("Register account with unique  username and with password")
     public void registerNewCourierAccountWithUniqueUsernameSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
@@ -23,6 +25,7 @@ public class CreateCourierAccountsTests {
     }
 
     @Test
+    @DisplayName("Register account with unique username and without password")
     public void registerNewCourierAccountWithEmptyPasswordBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(false, true, false);
@@ -32,6 +35,7 @@ public class CreateCourierAccountsTests {
     }
 
     @Test
+    @DisplayName("Register account with empty username and with password")
     public void registerNewCourierAccountWithEmptyUsernameBadRequest()  {
 
         CourierAccount testAccount = new CourierAccount(true, false, false);
@@ -41,6 +45,7 @@ public class CreateCourierAccountsTests {
     }
 
     @Test
+    @DisplayName("Register account with empty FirstName and with unique username/password")
     public void registerNewCourierAccountWithEmptyFirstNameSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -54,6 +59,7 @@ public class CreateCourierAccountsTests {
     }
 
     @Test
+    @DisplayName("Register account with duplicated username and with password")
     public void registerNewCourierAccountWithDuplicatedUsernameConflict()  {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);

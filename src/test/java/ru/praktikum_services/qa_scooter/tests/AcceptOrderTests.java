@@ -1,6 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
@@ -12,6 +13,7 @@ import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
 public class AcceptOrderTests {
     @Test
+    @DisplayName("Accept new order with correct order ID for courier with correct ID")
     public void acceptNewCorrectOrderSuccess() throws RemoveTestDataException {
         Order order = new Order(new String[]{"BLACK"},4);
         CourierAccount courierAccount = new CourierAccount(false, false, false);
@@ -27,6 +29,7 @@ public class AcceptOrderTests {
 
     }
     @Test
+    @DisplayName("Accept new order with empty order ID for courier with correct ID")
     public void acceptOrderWithoutOrderNumberBadRequest() throws RemoveTestDataException {
 
 
@@ -40,6 +43,7 @@ public class AcceptOrderTests {
 
     }
     @Test
+    @DisplayName("Accept new order with correct order ID without courier")
     public void acceptNewCorrectOrderWithoutCourierIdConflict()  {
         Order order = new Order(new String[]{"BLACK"},4);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
@@ -53,6 +57,7 @@ public class AcceptOrderTests {
     }
 
     @Test
+    @DisplayName("Accept new order with wrong order ID for courier with correct ID")
     public void acceptOrderWithWrongOrderNumberNotFound() throws RemoveTestDataException {
 
         String orderId =  String.valueOf(1000000 + (int) (Math.random() * 2000000));
@@ -67,6 +72,7 @@ public class AcceptOrderTests {
     }
 
     @Test
+    @DisplayName("Accept new order with correct order ID for courier with wrong ID")
     public void acceptNewCorrectOrderWithWrongCourierIdNotFound()  {
         Order order = new Order(new String[]{"BLACK"},4);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);
@@ -79,6 +85,7 @@ public class AcceptOrderTests {
 
 
     @Test
+    @DisplayName("Accept already accepted order")
     public void acceptAlreadyAcceptedOrderConflict() throws RemoveTestDataException {
         Order order = new Order(new String[]{"BLACK"},4);
         CourierAccount courierAccount = new CourierAccount(false, false, false);

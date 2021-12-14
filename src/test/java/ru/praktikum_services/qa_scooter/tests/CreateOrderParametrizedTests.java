@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class CreateOrderParametrizedTests {
 
 
     @Test
+    @DisplayName("Create orders with different Coolors value")
     public void createNewOrderSuccess() throws RemoveTestDataException {
         Order order = new Order(color, 4);
       Response createResponse = createNewOrderAndGetResponse(order);

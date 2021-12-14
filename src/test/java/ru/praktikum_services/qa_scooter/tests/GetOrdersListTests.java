@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import static ru.praktikum_services.qa_scooter.model.OrderActions.acceptOrderByI
 
 public class GetOrdersListTests {
     @Test
+    @DisplayName("Get orders list for courier with correct ID and check result")
     public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
@@ -47,6 +49,7 @@ public class GetOrdersListTests {
 
     }
     @Test
+    @DisplayName("Get available orders list for any courier and check result")
     public void getOrdersListForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
         //add new test data (orders list)
        ArrayList<Order> orders = new ArrayList<>(10);
@@ -72,6 +75,7 @@ public class GetOrdersListTests {
     }
 
     @Test
+    @DisplayName("Get orders list for courier with correct ID near metrostations and check result")
     public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
@@ -115,6 +119,7 @@ public class GetOrdersListTests {
     }
 
     @Test
+    @DisplayName("Get orders list available for any courier and check result")
     public void getOrdersListAvailableForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
@@ -140,6 +145,7 @@ public class GetOrdersListTests {
     }
 
     @Test
+    @DisplayName("Get orders list available for any courier near metrostations and check result")
     public void getTenOrdersAvailableForAnyCourierNearStationAndCheckReceivedListSuccess() throws RemoveTestDataException {
 
         //add new test data (orders list)

@@ -1,5 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.Order;
@@ -10,6 +11,7 @@ import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 public class GetOrderTest {
 
     @Test
+    @DisplayName("Get orders by correct TrackNumber")
     public void getOrderByCorrectTrackNumberSuccess() throws RemoveTestDataException
     {
         Order order = new Order(new String[]{"BLACK"},4);
@@ -21,6 +23,7 @@ public class GetOrderTest {
     }
 
     @Test
+    @DisplayName("Get orders by empty TrackNumber")
     public void getOrderByEmptyTrackNumberBadRequest()
     {
         Response getOrderResponse = getOrderByTrackNumberAndGetResponse("");
@@ -28,6 +31,7 @@ public class GetOrderTest {
     }
 
     @Test
+    @DisplayName("Get orders by wrong TrackNumber")
     public void getOrderByWrongTrackNumberNotFound()
     {
         int id  = (1000000 + (int) (Math.random() * 2000000));
