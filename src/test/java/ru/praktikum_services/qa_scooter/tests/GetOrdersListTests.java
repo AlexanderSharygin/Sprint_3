@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -16,10 +18,13 @@ import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.delet
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.acceptOrderByIdAndGetResponse;
 
+@Feature("Orders management")
+@Story("Get Orders List")
+
 public class GetOrdersListTests {
     @Test
     @DisplayName("Get orders list for courier with correct ID and check result")
-    public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
+     public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
         ArrayList<Order> orders = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {

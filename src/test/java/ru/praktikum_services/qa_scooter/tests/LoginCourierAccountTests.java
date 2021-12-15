@@ -1,6 +1,6 @@
 package ru.praktikum_services.qa_scooter.tests;
 
-import io.qameta.allure.Step;
+import io.qameta.allure.*;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -11,12 +11,14 @@ import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+@Feature("Courier accounts management")
+@Story("Login under Courier account")
 public class LoginCourierAccountTests {
 
 
     @Test
     @DisplayName("Login with correct username/password")
-    public void loginCourierAccountCorrectCreditsSuccess() throws RemoveTestDataException {
+   public void loginCourierAccountCorrectCreditsSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
        registerNewCourierAccountAndGetResponse(testAccount);
@@ -43,7 +45,7 @@ public class LoginCourierAccountTests {
     }
 
     @Test
-    @DisplayName("Login without username")
+   @DisplayName("Login without username")
     public void loginCourierAccountWithoutUserNameBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);
@@ -58,7 +60,7 @@ public class LoginCourierAccountTests {
     }
 
     @Test
-    @DisplayName("Login without username")
+    @DisplayName("Login with wrong password")
     public void loginCourierAccountWithWrongPasswordBadRequest() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, true);

@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -8,12 +10,14 @@ import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
 import static org.hamcrest.Matchers.equalTo;
 
+@Feature("Courier accounts management")
+@Story("Create new account")
 public class CreateCourierAccountsTests {
 
 
     @Test
     @DisplayName("Register account with unique  username and with password")
-    public void registerNewCourierAccountWithUniqueUsernameSuccess() throws RemoveTestDataException {
+   public void registerNewCourierAccountWithUniqueUsernameSuccess() throws RemoveTestDataException {
 
         CourierAccount testAccount = new CourierAccount(false, false, false);
         Response response = registerNewCourierAccountAndGetResponse(testAccount);
@@ -43,6 +47,7 @@ public class CreateCourierAccountsTests {
         response.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
 
     }
+
 
     @Test
     @DisplayName("Register account with empty FirstName and with unique username/password")

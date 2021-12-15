@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -8,10 +10,13 @@ import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
 import static org.hamcrest.Matchers.equalTo;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
+@Feature("Orders management")
+@Story("Gets single order")
 public class GetOrderTest {
 
     @Test
     @DisplayName("Get orders by correct TrackNumber")
+
     public void getOrderByCorrectTrackNumberSuccess() throws RemoveTestDataException
     {
         Order order = new Order(new String[]{"BLACK"},4);

@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -9,6 +11,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 
 
+@Feature("Courier accounts management")
+@Story("Delete account")
 
 public class DeleteCourierAccountTests {
 

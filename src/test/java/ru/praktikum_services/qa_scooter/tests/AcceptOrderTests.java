@@ -1,6 +1,8 @@
 package ru.praktikum_services.qa_scooter.tests;
 
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
@@ -11,6 +13,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
+@Feature("Orders management")
+@Story("Accept order")
 public class AcceptOrderTests {
     @Test
     @DisplayName("Accept new order with correct order ID for courier with correct ID")
@@ -58,7 +62,7 @@ public class AcceptOrderTests {
 
     @Test
     @DisplayName("Accept new order with wrong order ID for courier with correct ID")
-    public void acceptOrderWithWrongOrderNumberNotFound() throws RemoveTestDataException {
+   public void acceptOrderWithWrongOrderNumberNotFound() throws RemoveTestDataException {
 
         String orderId =  String.valueOf(1000000 + (int) (Math.random() * 2000000));
         CourierAccount courierAccount = new CourierAccount(false, false, false);
@@ -86,7 +90,7 @@ public class AcceptOrderTests {
 
     @Test
     @DisplayName("Accept already accepted order")
-    public void acceptAlreadyAcceptedOrderConflict() throws RemoveTestDataException {
+   public void acceptAlreadyAcceptedOrderConflict() throws RemoveTestDataException {
         Order order = new Order(new String[]{"BLACK"},4);
         CourierAccount courierAccount = new CourierAccount(false, false, false);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);

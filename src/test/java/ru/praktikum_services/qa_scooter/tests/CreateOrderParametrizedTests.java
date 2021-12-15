@@ -1,5 +1,7 @@
 package ru.praktikum_services.qa_scooter.tests;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -12,6 +14,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
 
+@Feature("Orders management")
+@Story("Create new order")
 @RunWith(Parameterized.class)
 public class CreateOrderParametrizedTests {
 
@@ -40,7 +44,7 @@ public class CreateOrderParametrizedTests {
 
 
     @Test
-    @DisplayName("Create orders with different Coolors value")
+    @DisplayName("Create orders with different Colors value")
     public void createNewOrderSuccess() throws RemoveTestDataException {
         Order order = new Order(color, 4);
       Response createResponse = createNewOrderAndGetResponse(order);
