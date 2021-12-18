@@ -2,12 +2,15 @@ package ru.praktikum_services.qa_scooter.tests;
 
 import io.qameta.allure.*;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
-import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
+import ru.praktikum_services.qa_scooter.model.CourierAccountClient;
+import ru.praktikum_services.qa_scooter.model.CourierCredentials;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -15,76 +18,101 @@ import static org.hamcrest.Matchers.notNullValue;
 @Story("Login under Courier account")
 public class LoginCourierAccountTests {
 
+    private final CourierAccountClient courierAccountClient = new CourierAccountClient();
+    private int courierId=0;
+    private CourierAccount courierAccount;
+
+    @Before
+    public void setup() {
+        courierAccount = CourierAccount.getRandom();
+        courierAccountClient.registerNewCourierAccount(courierAccount);
+    }
 
     @Test
     @DisplayName("Login with correct username/password")
-   public void loginCourierAccountCorrectCreditsSuccess() throws RemoveTestDataException {
+    public void loginCourierAccountCorrectCreditsSuccess() {
 
-        CourierAccount testAccount = new CourierAccount(false, false, true);
-       registerNewCourierAccountAndGetResponse(testAccount);
-        Response response = loginCourierAndGetResponse(testAccount);
-        response.then().assertThat().statusCode(200).and().body("id", notNullValue());
-        if (response.statusCode()==201)
-        {
-            deleteTestDataFromDB(testAccount);
-        }
+        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(200).and().body("id", notNullValue());
+        courierId = response.assertThat().extract().path("id");
     }
-
     @Test
     @DisplayName("Login without password")
-    public void loginCourierAccountWithoutPasswordBadRequest() throws RemoveTestDataException {
+    public void loginCourierAccountWithoutPasswordBadRequest()  {
 
-       CourierAccount testAccount = new CourierAccount(false, false, true);
-        registerNewCourierAccountAndGetResponse(testAccount);
-        String correctPassword = testAccount.getPassword();
-        testAccount.setPassword("");
-        Response loginResponse = loginCourierAndGetResponse(testAccount);
-        loginResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-        testAccount.setPassword(correctPassword);
-        deleteTestDataFromDB(testAccount);
+        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), null);
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+        credentials.setPassword(courierAccount.getPassword());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
     }
 
     @Test
-   @DisplayName("Login without username")
-    public void loginCourierAccountWithoutUserNameBadRequest() throws RemoveTestDataException {
+    @DisplayName("Login with Empty password")
+    public void loginCourierAccountWithEmptyPasswordBadRequest()  {
 
-        CourierAccount testAccount = new CourierAccount(false, false, true);
-        registerNewCourierAccountAndGetResponse(testAccount);
-        String correctUsername = testAccount.getUsername();
-        testAccount.setUsername("");
-        Response loginResponse = loginCourierAndGetResponse(testAccount);
-        loginResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-        testAccount.setUsername(correctUsername);
-        deleteTestDataFromDB(testAccount);
+        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), "");
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
 
+        credentials.setPassword(courierAccount.getPassword());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+    }
+
+    @Test
+    @DisplayName("Login without username")
+    public void loginCourierAccountWithoutUserNameBadRequest()  {
+
+        CourierCredentials credentials = new CourierCredentials(null, courierAccount.getPassword());
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+
+        credentials.setLogin(courierAccount.getLogin());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+    }
+
+    @Test
+    @DisplayName("Login with Empty username")
+    public void loginCourierAccountWithEmptyUserNameBadRequest()  {
+
+        CourierCredentials credentials = new CourierCredentials("", courierAccount.getPassword());
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+
+        credentials.setLogin(courierAccount.getLogin());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
     }
 
     @Test
     @DisplayName("Login with wrong password")
-    public void loginCourierAccountWithWrongPasswordBadRequest() throws RemoveTestDataException {
+    public void loginCourierAccountWithWrongPasswordBadRequest()  {
 
-        CourierAccount testAccount = new CourierAccount(false, false, true);
-        registerNewCourierAccountAndGetResponse(testAccount);
-        String correctPassword = testAccount.getPassword();
-        testAccount.setPassword(RandomStringUtils.randomAlphabetic(10));
-        Response loginResponse = loginCourierAndGetResponse(testAccount);
-        loginResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
-        testAccount.setPassword(correctPassword);
-        deleteTestDataFromDB(testAccount);
+        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), RandomStringUtils.randomAlphabetic(10));
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
+
+        credentials.setPassword(courierAccount.getPassword());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+
+
     }
 
     @Test
     @DisplayName("Login with not existed username")
-    public void loginCourierAccountWithWrongUserNameBadRequest() throws RemoveTestDataException {
+    public void loginCourierAccountWithWrongUserNameBadRequest()  {
 
-        CourierAccount testAccount = new CourierAccount(false, false, true);
-        registerNewCourierAccountAndGetResponse(testAccount);
-        String correctUsername = testAccount.getUsername();
-        testAccount.setUsername(RandomStringUtils.randomAlphabetic(10));
-        Response loginResponse = loginCourierAndGetResponse(testAccount);
-        loginResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
-        testAccount.setUsername(correctUsername);
-        deleteTestDataFromDB(testAccount);
+        CourierCredentials credentials = new CourierCredentials(RandomStringUtils.randomAlphabetic(10), courierAccount.getPassword());
+        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
+        response.assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
+
+        credentials.setLogin(courierAccount.getLogin());
+        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+    }
+
+    @After
+    public void tearDown() {
+        courierAccountClient.deleteCourierAccount(String.valueOf(courierId));
     }
 
 }

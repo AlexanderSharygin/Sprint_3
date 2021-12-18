@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.praktikum_services.qa_scooter.model.Order;
-import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
+
 import static org.hamcrest.Matchers.notNullValue;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
@@ -45,7 +45,7 @@ public class CreateOrderParametrizedTests {
 
     @Test
     @DisplayName("Create orders with different Colors value")
-    public void createNewOrderSuccess() throws RemoveTestDataException {
+    public void createNewOrderSuccess()  {
         Order order = new Order(color, 4);
       Response createResponse = createNewOrderAndGetResponse(order);
         createResponse.then().assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue());

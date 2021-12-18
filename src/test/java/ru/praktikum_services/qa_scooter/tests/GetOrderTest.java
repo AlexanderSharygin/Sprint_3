@@ -6,7 +6,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.Order;
-import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
+
 import static org.hamcrest.Matchers.equalTo;
 import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
@@ -17,7 +17,7 @@ public class GetOrderTest {
     @Test
     @DisplayName("Get orders by correct TrackNumber")
 
-    public void getOrderByCorrectTrackNumberSuccess() throws RemoveTestDataException
+    public void getOrderByCorrectTrackNumberSuccess()
     {
         Order order = new Order(new String[]{"BLACK"},4);
         Response createdOrderResponse = createNewOrderAndGetResponse(order);

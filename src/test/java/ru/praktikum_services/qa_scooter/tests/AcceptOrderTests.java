@@ -3,20 +3,11 @@ package ru.praktikum_services.qa_scooter.tests;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
-import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
-import org.junit.Test;
-import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.Order;
-import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
-import static org.hamcrest.Matchers.equalTo;
-import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
-import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
 @Feature("Orders management")
 @Story("Accept order")
 public class AcceptOrderTests {
-    @Test
+   /* @Test
     @DisplayName("Accept new order with correct order ID for courier with correct ID")
     public void acceptNewCorrectOrderSuccess() throws RemoveTestDataException {
         Order order = new Order(new String[]{"BLACK"},4);
@@ -104,5 +95,5 @@ public class AcceptOrderTests {
         acceptedOrderResponse.then().assertThat().statusCode(409).and().body("message", equalTo("Этот заказ уже в работе"));
         deleteTestDataFromDB(courierAccount);
 
-    }
+    }*/
 }

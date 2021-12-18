@@ -65,15 +65,13 @@ public class OrderActions {
         }
     }
     @Step("Delete order that was created for testing purpose")
-    public static void cancelOrderByTrackNumberAndGetResponse(String orderTrackNumber) throws RemoveTestDataException
+    public static void cancelOrderByTrackNumberAndGetResponse(String orderTrackNumber)
     {
        Response response = given()
                 .and()
                 .when()
                 .put("https://qa-scooter.praktikum-services.ru/api/v1/orders/cancel/?track={track}", orderTrackNumber);
-        if(response.statusCode()!=200) {
-            throw  new RemoveTestDataException("Ошибка при удалении тестовых данных из базы данных");
-        }
+
     }
 
     @Step("Get order id by order TrackNumber")

@@ -2,27 +2,12 @@ package ru.praktikum_services.qa_scooter.tests;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
-import io.qameta.allure.junit4.DisplayName;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import org.junit.Test;
-import ru.praktikum_services.qa_scooter.model.CompleteOrderException;
-import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.Order;
-import ru.praktikum_services.qa_scooter.model.RemoveTestDataException;
-import java.util.ArrayList;
-import static org.hamcrest.Matchers.*;
-
-import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.*;
-import static ru.praktikum_services.qa_scooter.model.CourierAccountActions.deleteTestDataFromDB;
-import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
-import static ru.praktikum_services.qa_scooter.model.OrderActions.acceptOrderByIdAndGetResponse;
 
 @Feature("Orders management")
 @Story("Get Orders List")
 
 public class GetOrdersListTests {
-    @Test
+   /* @Test
     @DisplayName("Get orders list for courier with correct ID and check result")
      public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
         //add new test data (orders list and the new courier account)
@@ -174,5 +159,5 @@ public class GetOrdersListTests {
             cancelOrderByTrackNumberAndGetResponse(trackNumber);
         }
 
-    }
+    }*/
 }
