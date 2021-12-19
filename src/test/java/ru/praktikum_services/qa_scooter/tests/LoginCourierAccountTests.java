@@ -8,9 +8,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.CourierAccountClient;
+import ru.praktikum_services.qa_scooter.model.CourierAccountAPI;
 import ru.praktikum_services.qa_scooter.model.CourierCredentials;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -18,14 +19,14 @@ import static org.hamcrest.Matchers.notNullValue;
 @Story("Login under Courier account")
 public class LoginCourierAccountTests {
 
-    private final CourierAccountClient courierAccountClient = new CourierAccountClient();
-    private int courierId=0;
+    private final CourierAccountAPI courierAccountAPI = new CourierAccountAPI();
+    private int courierId;
     private CourierAccount courierAccount;
 
     @Before
     public void setup() {
         courierAccount = CourierAccount.getRandom();
-        courierAccountClient.registerNewCourierAccount(courierAccount);
+        courierAccountAPI.registerNewCourierAccount(courierAccount);
     }
 
     @Test
@@ -33,8 +34,8 @@ public class LoginCourierAccountTests {
     public void loginCourierAccountCorrectCreditsSuccess() {
 
         CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(200).and().body("id", notNullValue());
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_OK).and().body("id", notNullValue());
         courierId = response.assertThat().extract().path("id");
     }
     @Test
@@ -42,10 +43,10 @@ public class LoginCourierAccountTests {
     public void loginCourierAccountWithoutPasswordBadRequest()  {
 
         CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), null);
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для входа"));
         credentials.setPassword(courierAccount.getPassword());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
     }
 
     @Test
@@ -53,11 +54,10 @@ public class LoginCourierAccountTests {
     public void loginCourierAccountWithEmptyPasswordBadRequest()  {
 
         CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), "");
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для входа"));
         credentials.setPassword(courierAccount.getPassword());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
     }
 
     @Test
@@ -65,11 +65,10 @@ public class LoginCourierAccountTests {
     public void loginCourierAccountWithoutUserNameBadRequest()  {
 
         CourierCredentials credentials = new CourierCredentials(null, courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для входа"));
         credentials.setLogin(courierAccount.getLogin());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
     }
 
     @Test
@@ -77,42 +76,39 @@ public class LoginCourierAccountTests {
     public void loginCourierAccountWithEmptyUserNameBadRequest()  {
 
         CourierCredentials credentials = new CourierCredentials("", courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для входа"));
-
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для входа"));
         credentials.setLogin(courierAccount.getLogin());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
     }
 
     @Test
     @DisplayName("Login with wrong password")
-    public void loginCourierAccountWithWrongPasswordBadRequest()  {
+    public void loginCourierAccountWithWrongPasswordNotFound()  {
 
         CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), RandomStringUtils.randomAlphabetic(10));
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
-
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_NOT_FOUND).and().body("message", equalTo("Учетная запись не найдена"));
         credentials.setPassword(courierAccount.getPassword());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
 
 
     }
 
     @Test
     @DisplayName("Login with not existed username")
-    public void loginCourierAccountWithWrongUserNameBadRequest()  {
+    public void loginCourierAccountWithWrongUserNameNotFound()  {
 
         CourierCredentials credentials = new CourierCredentials(RandomStringUtils.randomAlphabetic(10), courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.loginCourierAccount(credentials);
-        response.assertThat().statusCode(404).and().body("message", equalTo("Учетная запись не найдена"));
-
+        ValidatableResponse response = courierAccountAPI.loginCourierAccount(credentials);
+        response.assertThat().statusCode(SC_NOT_FOUND).and().body("message", equalTo("Учетная запись не найдена"));
         credentials.setLogin(courierAccount.getLogin());
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
     }
 
     @After
     public void tearDown() {
-        courierAccountClient.deleteCourierAccount(String.valueOf(courierId));
+        courierAccountAPI.deleteCourierAccount(String.valueOf(courierId)).assertThat().statusCode(SC_OK);
     }
 
 }

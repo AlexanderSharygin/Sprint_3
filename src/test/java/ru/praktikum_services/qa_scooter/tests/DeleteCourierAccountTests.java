@@ -6,8 +6,10 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
-import ru.praktikum_services.qa_scooter.model.CourierAccountClient;
+import ru.praktikum_services.qa_scooter.model.CourierAccountAPI;
 import ru.praktikum_services.qa_scooter.model.CourierCredentials;
+
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 
@@ -17,7 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteCourierAccountTests {
 
-    private final CourierAccountClient courierAccountClient= new CourierAccountClient();
+    private final CourierAccountAPI courierAccountAPI = new CourierAccountAPI();
 
 
 
@@ -27,19 +29,19 @@ public class DeleteCourierAccountTests {
 
         CourierAccount testAccount = CourierAccount.getRandom();
         CourierCredentials credentials = new CourierCredentials(testAccount.getLogin(),testAccount.getPassword());
-        courierAccountClient.registerNewCourierAccount(testAccount);
-        courierAccountClient.loginCourierAccount(credentials);
-        int courierId = courierAccountClient.loginCourierAccount(credentials).extract().path("id");
-        ValidatableResponse response = courierAccountClient.deleteCourierAccount(String.valueOf(courierId));
-        response.assertThat().statusCode(200).and().body("ok", equalTo(true));
+        courierAccountAPI.registerNewCourierAccount(testAccount);
+        courierAccountAPI.loginCourierAccount(credentials);
+        String courierId = courierAccountAPI.loginCourierAccount(credentials).extract().path("id").toString();
+        ValidatableResponse response = courierAccountAPI.deleteCourierAccount(courierId);
+        response.assertThat().statusCode(SC_OK).and().body("ok", equalTo(true));
 
     }
     @Test
     @DisplayName("Delete courier account without ID")
     public void deleteCourierAccountWithEmptyIdBadRequest() {
 
-        ValidatableResponse response = courierAccountClient.deleteCourierAccount("");
-        response.assertThat().statusCode(400).and().body("message", equalTo( "Недостаточно данных для удаления курьера"));
+        ValidatableResponse response = courierAccountAPI.deleteCourierAccount("");
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo( "Недостаточно данных для удаления курьера"));
 
     }
     @Test
@@ -47,8 +49,8 @@ public class DeleteCourierAccountTests {
     public void deleteCourierAccountWithWrongIdBadRequest() {
 
         int courierId  = (1000000 + (int) (Math.random() * 2000000));
-        ValidatableResponse response = courierAccountClient.deleteCourierAccount(String.valueOf(courierId));
-        response.assertThat().statusCode(404).and().body("message", equalTo( "Курьера с таким id нет."));
+        ValidatableResponse response = courierAccountAPI.deleteCourierAccount(String.valueOf(courierId));
+        response.assertThat().statusCode(SC_NOT_FOUND).and().body("message", equalTo( "Курьера с таким id нет."));
 
     }
 

@@ -2,162 +2,143 @@ package ru.praktikum_services.qa_scooter.tests;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.ValidatableResponse;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import ru.praktikum_services.qa_scooter.model.*;
+
+import java.util.ArrayList;
+
+import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
 
 @Feature("Orders management")
 @Story("Get Orders List")
 
 public class GetOrdersListTests {
-   /* @Test
-    @DisplayName("Get orders list for courier with correct ID and check result")
-     public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
-        //add new test data (orders list and the new courier account)
-        ArrayList<Order> orders = new ArrayList<>(10);
-        for (int i = 0; i < 10; i++) {
-            orders.add(new Order(new String[]{"BLACK"},1));
-        }
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
+    private final CourierAccountAPI courierAccountAPI = new CourierAccountAPI();
+    private final OrdersAPI ordersAPI = new OrdersAPI();
+    private ArrayList<Order> ordersList;
+    ArrayList<String> ordersTrackNumbers;
+    CourierAccount courierAccount;
+    CourierCredentials courierCredentials;
+    String courierId;
 
-        //accept/complete orders (to assign orders for the certain courier)
-        for (int i = 0; i < orders.size(); i++) {
-            Response createdOrderResponse = createNewOrderAndGetResponse(orders.get(i));
-            String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-            String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-            acceptOrderByIdAndGetResponse(orderId, courierId);
-         if (i<(orders.size()/2))
-          {
-            completeOrderByOrderIdAndGetResponse(orderId);
-          }
-        }
-        // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrdersListForCourier(courierId, null, null, null);
-        getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
-       //remove test data from DB
-        deleteTestDataFromDB(courierAccount);
+    @Before
+    public void setup() {
+        ordersList = new ArrayList<>(10);
+        ordersTrackNumbers = new ArrayList<>();
+        courierAccount = CourierAccount.getRandom();
+        courierCredentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
+        courierId = null;
+    }
+
+    @Test
+    @DisplayName("Get orders list for courier with correct ID and check result")
+    public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() {
+
+        createOrdersList();
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        courierId = courierAccountAPI.loginCourierAccount(courierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        CreateAndAcceptCompleteOrdersForCourier(courierId);
+        ValidatableResponse response = ordersAPI.getOrdersListForCourier(courierId, null, null, null);
+        response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(10));
 
     }
+
     @Test
     @DisplayName("Get available orders list for any courier and check result")
-    public void getOrdersListForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
-        //add new test data (orders list)
-       ArrayList<Order> orders = new ArrayList<>(10);
-       ArrayList<String> trackNumbers = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            orders.add(new Order(new String[]{"BLACK"},1));
-        }
-        for (Order order : orders) {
-            Response createdOrderResponse = createNewOrderAndGetResponse(order);
-            JsonPath jsonPath = new JsonPath(createdOrderResponse.thenReturn().getBody().asString());
-            trackNumbers.add(jsonPath.getString("track"));
-        }
+    public void getOrdersListForAnyCourierAndCheckReceivedListSuccess() {
 
-        // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrdersListForCourier("", null, null, null);
-        getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(greaterThanOrEqualTo(10)));
-
-        //remove test data from DB
-        for (String trackNumber : trackNumbers) {
-            cancelOrderByTrackNumberAndGetResponse(trackNumber);
-        }
+        createOrdersList();
+        fillOrdersTrackNumbersList();
+        ValidatableResponse response = ordersAPI.getOrdersListForCourier("", null, null, null);
+        response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(greaterThanOrEqualTo(10)));
 
     }
 
     @Test
     @DisplayName("Get orders list for courier with correct ID near metrostations and check result")
-    public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() throws RemoveTestDataException, CompleteOrderException {
-        //add new test data (orders list and the new courier account)
-        ArrayList<Order> orders = new ArrayList<>(10);
+    public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() {
+
+
         for (int i = 0; i < 10; i++) {
-            if (i<3) {
-                orders.add(new Order(new String[]{"BLACK"}, 5));
-            }
-            else if (i<8)
-            {
-                orders.add(new Order(new String[]{"BLACK"}, 6));
-            }
-            else
-            {
-                orders.add(new Order(new String[]{"BLACK"}, 7));
-            }
-        }
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
-
-        //accept/complete orders (to assign orders for the certain courier)
-        for (int i = 0; i < orders.size(); i++) {
-            Response createdOrderResponse = createNewOrderAndGetResponse(orders.get(i));
-            String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-            String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-            acceptOrderByIdAndGetResponse(orderId, courierId);
-            if (i<(orders.size()/2))
-            {
-               completeOrderByOrderIdAndGetResponse(orderId);
-
+            if (i < 3) {
+                ordersList.add(new Order(new String[]{"BLACK"}, 5));
+            } else if (i < 8) {
+                ordersList.add(new Order(new String[]{"BLACK"}, 6));
+            } else {
+                ordersList.add(new Order(new String[]{"BLACK"}, 7));
             }
         }
 
-        // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrdersListForCourier(courierId, "[\"5\", \"6\"]", null, null);
-        getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(8));
-        //remove test data from DB
-        deleteTestDataFromDB(courierAccount);
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        courierId = courierAccountAPI.loginCourierAccount(courierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        CreateAndAcceptCompleteOrdersForCourier(courierId);
+        ValidatableResponse response = ordersAPI.getOrdersListForCourier(courierId, "[\"5\", \"6\"]", null, null);
+        response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(8));
+
 
     }
 
     @Test
     @DisplayName("Get orders list available for any courier and check result")
-    public void getOrdersListAvailableForAnyCourierAndCheckReceivedListSuccess() throws RemoveTestDataException {
-        //add new test data (orders list and the new courier account)
-        ArrayList<Order> orders = new ArrayList<>(10);
-        ArrayList<String> trackNumbers = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            orders.add(new Order(new String[]{"BLACK"},1));
-        }
-        for (Order order : orders) {
-            Response createdOrderResponse = createNewOrderAndGetResponse(order);
-            JsonPath jsonPath = new JsonPath(createdOrderResponse.thenReturn().getBody().asString());
-            trackNumbers.add(jsonPath.getString("track"));
-        }
+    public void getOrdersListAvailableForAnyCourierAndCheckReceivedListSuccess() {
 
-        // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrdersListForCourier("", null, "10", "0");
-        getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
-
-        //remove test data from DB
-        for (String trackNumber : trackNumbers) {
-            cancelOrderByTrackNumberAndGetResponse(trackNumber);
-        }
+        createOrdersList();
+        fillOrdersTrackNumbersList();
+        ValidatableResponse response = ordersAPI.getOrdersListForCourier("", null, "10", "0");
+        response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(10));
 
     }
 
     @Test
     @DisplayName("Get orders list available for any courier near metrostations and check result")
-    public void getTenOrdersAvailableForAnyCourierNearStationAndCheckReceivedListSuccess() throws RemoveTestDataException {
+    public void getTenOrdersAvailableForAnyCourierNearStationAndCheckReceivedListSuccess() {
 
-        //add new test data (orders list)
-        ArrayList<Order> orders = new ArrayList<>(10);
-        ArrayList<String> trackNumbers = new ArrayList<>();
+        createOrdersList();
+        fillOrdersTrackNumbersList();
+        ValidatableResponse response = ordersAPI.getOrdersListForCourier("", "[\"15\"]", "10", "0");
+        response.assertThat().statusCode(SC_OK).and().body("orders.size()", is((10)));
+
+    }
+
+    @After
+    public void tearDown() {
+        for (String trackNumber : ordersTrackNumbers) {
+            ordersAPI.cancelOrderByTrackNumber(trackNumber).assertThat().statusCode(SC_OK);
+        }
+        if (courierId!=null) {
+            courierAccountAPI.deleteCourierAccount(courierId).assertThat().statusCode(SC_OK);
+        }
+    }
+
+    private void createOrdersList() {
         for (int i = 0; i < 10; i++) {
-            orders.add(new Order(new String[]{"BLACK"},15));
+            ordersList.add(new Order(new String[]{"BLACK"}, 1));
         }
-        for (Order order : orders) {
-            Response createdOrderResponse = createNewOrderAndGetResponse(order);
-            JsonPath jsonPath = new JsonPath(createdOrderResponse.thenReturn().getBody().asString());
-            trackNumbers.add(jsonPath.getString("track"));
+    }
+
+    private void fillOrdersTrackNumbersList() {
+        for (Order order : ordersList) {
+            String orderTrackNumber = ordersAPI.createNewOrder(order).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+            ordersTrackNumbers.add(orderTrackNumber);
+        }
+    }
+
+    private void CreateAndAcceptCompleteOrdersForCourier(String courierId) {
+        for (int i = 0; i < ordersList.size(); i++) {
+            String orderTrackNumber = ordersAPI.createNewOrder(ordersList.get(i)).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+            String orderId = ordersAPI.getOrderByTrackNumber(String.valueOf(orderTrackNumber)).assertThat().statusCode(SC_OK).extract().path("order.id").toString();
+            ordersAPI.acceptOrderByOrderId(orderId, courierId).assertThat().statusCode(SC_OK);
+            if (i < (ordersList.size() / 2)) {
+                ordersAPI.completeOrderByOrderId(orderId).assertThat().statusCode(SC_OK);
+            }
         }
 
-        // getOrderList and check that list contains correct orders count
-        Response getOrdersResponse = getOrdersListForCourier("", "[\"15\"]", "10", "0");
-        getOrdersResponse.then().assertThat().statusCode(200).and().body("orders.size()", is(10));
-
-        //remove test data from DB
-        for (String trackNumber : trackNumbers) {
-            cancelOrderByTrackNumberAndGetResponse(trackNumber);
-        }
-
-    }*/
+    }
 }

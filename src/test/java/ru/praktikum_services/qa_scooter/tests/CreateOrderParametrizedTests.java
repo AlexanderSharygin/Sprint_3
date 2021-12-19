@@ -3,15 +3,14 @@ package ru.praktikum_services.qa_scooter.tests;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.praktikum_services.qa_scooter.model.Order;
-
+import ru.praktikum_services.qa_scooter.model.OrdersAPI;
+import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.notNullValue;
-import static ru.praktikum_services.qa_scooter.model.OrderActions.*;
 
 
 @Feature("Orders management")
@@ -22,12 +21,13 @@ public class CreateOrderParametrizedTests {
     private final String[] color;
     private final int expectedStatus;
     private final String expectedBody;
+    private final OrdersAPI ordersAPI = new OrdersAPI();
 
-    public CreateOrderParametrizedTests(String [] color, int expectedStatus, String expectedBody)
-    {
-        this.color=color;
+
+    public CreateOrderParametrizedTests(String[] color, int expectedStatus, String expectedBody) {
+        this.color = color;
         this.expectedStatus = expectedStatus;
-        this.expectedBody= expectedBody;
+        this.expectedBody = expectedBody;
 
     }
 
@@ -45,20 +45,16 @@ public class CreateOrderParametrizedTests {
 
     @Test
     @DisplayName("Create orders with different Colors value")
-    public void createNewOrderSuccess()  {
+    public void createNewOrderSuccess() {
         Order order = new Order(color, 4);
-      Response createResponse = createNewOrderAndGetResponse(order);
-        createResponse.then().assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue());
-        if (createResponse.statusCode()==201)
-        {
-            JsonPath jsonPath = new JsonPath(createResponse.thenReturn().getBody().asString());
-            String orderTrackNumber = jsonPath.getString("track");
-            cancelOrderByTrackNumberAndGetResponse(orderTrackNumber);
+        ValidatableResponse response = ordersAPI.createNewOrder(order);
+        String orderTrackNumber = response.assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue()).extract().path("track").toString();
+        ordersAPI.cancelOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK);
 
-        }
     }
-
-
-
-
 }
+
+
+
+
+

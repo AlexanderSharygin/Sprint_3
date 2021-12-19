@@ -9,32 +9,37 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.praktikum_services.qa_scooter.model.CourierAccount;
 
-import ru.praktikum_services.qa_scooter.model.CourierAccountClient;
+import ru.praktikum_services.qa_scooter.model.CourierAccountAPI;
 import ru.praktikum_services.qa_scooter.model.CourierCredentials;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 @Feature("Courier accounts management")
 @Story("Create new account")
 public class CreateCourierAccountsTests {
 
-    private final CourierAccountClient courierAccountClient = new CourierAccountClient();
-    private int courierId=0;
+    private final CourierAccountAPI courierAccountAPI = new CourierAccountAPI();
+    private int courierId;
     private CourierAccount courierAccount;
+    private CourierCredentials credentials;
+
 
     @Before
     public void setup() {
         courierAccount = CourierAccount.getRandom();
+        credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
+        courierId=-1;
     }
 
     @Test
     @DisplayName("Register account with unique  username and with password")
-    public void registerNewCourierAccountWithUniqueUsernameSuccess()  {
+    public void registerNewCourierAccountWithUniqueUsernameSuccess() {
 
-        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.registerNewCourierAccount(courierAccount);
-        response.assertThat().statusCode(201).and().body("ok", equalTo(true));
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+
+        ValidatableResponse response = courierAccountAPI.registerNewCourierAccount(courierAccount);
+        response.assertThat().statusCode(SC_CREATED).and().body("ok", equalTo(true));
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
 
     }
 
@@ -43,28 +48,27 @@ public class CreateCourierAccountsTests {
     public void registerNewCourierAccountWithEmptyPasswordBadRequest() {
 
         courierAccount.setPassword(null);
-        ValidatableResponse response = courierAccountClient.registerNewCourierAccount(courierAccount);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
+        ValidatableResponse response = courierAccountAPI.registerNewCourierAccount(courierAccount);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
     @DisplayName("Register account with empty username and with password")
     public void registerNewCourierAccountWithEmptyUsernameBadRequest() {
         courierAccount.setLogin(null);
-        ValidatableResponse response = courierAccountClient.registerNewCourierAccount(courierAccount);
-        response.assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
+        ValidatableResponse response = courierAccountAPI.registerNewCourierAccount(courierAccount);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
 
     @Test
     @DisplayName("Register account with empty FirstName and with unique username/password")
-    public void registerNewCourierAccountWithEmptyFirstNameSuccess()  {
+    public void registerNewCourierAccountWithEmptyFirstNameSuccess() {
 
         courierAccount.setFirstName(null);
-        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
-        ValidatableResponse response = courierAccountClient.registerNewCourierAccount(courierAccount);
-        response.assertThat().statusCode(201).and().body("ok", equalTo(true));
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        ValidatableResponse response = courierAccountAPI.registerNewCourierAccount(courierAccount);
+        response.assertThat().statusCode(SC_CREATED).and().body("ok", equalTo(true));
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
 
     }
 
@@ -72,21 +76,22 @@ public class CreateCourierAccountsTests {
     @DisplayName("Register account with duplicated username and with password")
     public void registerNewCourierAccountWithDuplicatedUsernameConflict() {
 
-        CourierCredentials credentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
-        courierAccountClient.registerNewCourierAccount(courierAccount);
+        courierAccountAPI.registerNewCourierAccount(courierAccount);
         CourierAccount secondAccount = CourierAccount.getRandom();
         secondAccount.setLogin(courierAccount.getLogin());
-        ValidatableResponse secondAccountResponse = courierAccountClient.registerNewCourierAccount(secondAccount);
-        secondAccountResponse.assertThat().statusCode(409).and().body("message", equalTo("Этот логин уже используется"));
-
-        courierId = courierAccountClient.loginCourierAccount(credentials).assertThat().statusCode(200).extract().path("id");
+        ValidatableResponse secondAccountResponse = courierAccountAPI.registerNewCourierAccount(secondAccount);
+        secondAccountResponse.assertThat().statusCode(SC_CONFLICT).and().body("message", equalTo("Этот логин уже используется"));
+        courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
 
 
     }
 
     @After
     public void tearDown() {
-        courierAccountClient.deleteCourierAccount(String.valueOf(courierId));
+        if(courierId!=-1) {
+            courierAccountAPI.deleteCourierAccount(String.valueOf(courierId)).assertThat().statusCode(SC_OK);
+        }
+
     }
 
 }

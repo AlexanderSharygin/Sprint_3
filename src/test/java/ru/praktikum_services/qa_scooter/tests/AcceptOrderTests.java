@@ -1,99 +1,120 @@
 package ru.praktikum_services.qa_scooter.tests;
 
-
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.ValidatableResponse;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import ru.praktikum_services.qa_scooter.model.*;
+
+import static org.apache.http.HttpStatus.*;
+import static org.hamcrest.Matchers.equalTo;
 
 @Feature("Orders management")
 @Story("Accept order")
 public class AcceptOrderTests {
-   /* @Test
+
+    private final CourierAccountAPI courierAccountAPI = new CourierAccountAPI();
+    private final OrdersAPI ordersAPI = new OrdersAPI();
+    private String courierId;
+    private CourierAccount courierAccount;
+    private Order order;
+    private CourierCredentials CourierCredentials;
+
+
+    @Before
+    public void setup() {
+        courierAccount = CourierAccount.getRandom();
+        CourierCredentials = new CourierCredentials(courierAccount.getLogin(), courierAccount.getPassword());
+        courierId=null;
+        order = new Order(new String[]{"BLACK"}, 4);
+    }
+
+
+    @Test
     @DisplayName("Accept new order with correct order ID for courier with correct ID")
-    public void acceptNewCorrectOrderSuccess() throws RemoveTestDataException {
-        Order order = new Order(new String[]{"BLACK"},4);
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        Response createdOrderResponse = createNewOrderAndGetResponse(order);
-        String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-        String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
-        Response acceptOrderResponse = acceptOrderByIdAndGetResponse(orderId, courierId);
-        acceptOrderResponse.then().assertThat().statusCode(200).and().body("ok", equalTo(true));
-        deleteTestDataFromDB(courierAccount);
+    public void acceptNewCorrectOrderSuccess() {
+
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        String orderTrackNumber = ordersAPI.createNewOrder(order).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+        String orderId = ordersAPI.getOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK).extract().path("order.id").toString();
+        courierId = courierAccountAPI.loginCourierAccount(CourierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId(orderId, courierId);
+        response.assertThat().statusCode(SC_OK).and().body("ok", equalTo(true));
+
 
     }
+
     @Test
     @DisplayName("Accept new order with empty order ID for courier with correct ID")
-    public void acceptOrderWithoutOrderNumberBadRequest() throws RemoveTestDataException {
+    public void acceptOrderWithoutOrderNumberBadRequest() {
 
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        courierId = courierAccountAPI.loginCourierAccount(CourierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId("", courierId);
+        response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для поиска"));
 
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
-        Response acceptOrderResponse = acceptOrderByIdAndGetResponse("", courierId);
-        acceptOrderResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для поиска"));
-        deleteTestDataFromDB(courierAccount);
 
     }
+
     @Test
     @DisplayName("Accept new order with correct order ID without courier")
-    public void acceptNewCorrectOrderWithoutCourierIdConflict()  {
-        Order order = new Order(new String[]{"BLACK"},4);
-        Response createdOrderResponse = createNewOrderAndGetResponse(order);
-        String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-        String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-        String courierId =  "";
-        Response acceptedOrderResponse = acceptOrderByIdAndGetResponse(orderId, courierId);
-        acceptedOrderResponse.then().assertThat().statusCode(400).and().body("message", equalTo("Недостаточно данных для поиска"));
+    public void acceptNewCorrectOrderWithoutCourierIdConflict() {
 
+        String orderTrackNumber = ordersAPI.createNewOrder(order).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+        String orderId = ordersAPI.getOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK).extract().path("order.id").toString();
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId(orderId, "");
+        response.assertThat().assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для поиска"));
 
     }
 
     @Test
     @DisplayName("Accept new order with wrong order ID for courier with correct ID")
-   public void acceptOrderWithWrongOrderNumberNotFound() throws RemoveTestDataException {
+    public void acceptOrderWithWrongOrderNumberNotFound() {
 
-        String orderId =  String.valueOf(1000000 + (int) (Math.random() * 2000000));
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
-        Response acceptedOrderResponse = acceptOrderByIdAndGetResponse(orderId, courierId);
-        acceptedOrderResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Заказа с таким id не существует"));
-        deleteTestDataFromDB(courierAccount);
+        String orderId = String.valueOf(1000000 + (int) (Math.random() * 2000000));
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        courierId = courierAccountAPI.loginCourierAccount(CourierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId(orderId, courierId);
+        response.assertThat().statusCode(SC_NOT_FOUND).and().body("message", equalTo("Заказа с таким id не существует"));
 
     }
 
     @Test
     @DisplayName("Accept new order with correct order ID for courier with wrong ID")
-    public void acceptNewCorrectOrderWithWrongCourierIdNotFound()  {
-        Order order = new Order(new String[]{"BLACK"},4);
-        Response createdOrderResponse = createNewOrderAndGetResponse(order);
-        String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-        String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-        String courierId =  String.valueOf(1000000 + (int) (Math.random() * 2000000));
-        Response acceptedOrderResponse = acceptOrderByIdAndGetResponse(orderId, courierId);
-        acceptedOrderResponse.then().assertThat().statusCode(404).and().body("message", equalTo("Курьера с таким id не существует"));
+    public void acceptNewCorrectOrderWithWrongCourierIdNotFound() {
+
+        String orderTrackNumber = ordersAPI.createNewOrder(order).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+        String orderId = ordersAPI.getOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK).extract().path("order.id").toString();
+        String courierId = String.valueOf(1000000 + (int) (Math.random() * 2000000));
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId(orderId, courierId);
+        response.assertThat().statusCode(SC_NOT_FOUND).and().body("message", equalTo("Курьера с таким id не существует"));
+
     }
 
 
     @Test
     @DisplayName("Accept already accepted order")
-   public void acceptAlreadyAcceptedOrderConflict() throws RemoveTestDataException {
-        Order order = new Order(new String[]{"BLACK"},4);
-        CourierAccount courierAccount = new CourierAccount(false, false, false);
-        Response createdOrderResponse = createNewOrderAndGetResponse(order);
-        String orderTrackNumber = getOrderTrackNumberFromCreatedOrderResponse(createdOrderResponse);
-        String orderId = getOrderIdByOrderTrackNumber(orderTrackNumber);
-        registerNewCourierAccountAndGetResponse(courierAccount);
-        Response loginAccountResponse = loginCourierAndGetResponse(courierAccount);
-        String courierId = getCourierAccountIdFromLoginResponse(loginAccountResponse);
-        acceptOrderByIdAndGetResponse(orderId, courierId);
-        Response acceptedOrderResponse = acceptOrderByIdAndGetResponse(orderId, courierId);
-        acceptedOrderResponse.then().assertThat().statusCode(409).and().body("message", equalTo("Этот заказ уже в работе"));
-        deleteTestDataFromDB(courierAccount);
+    public void acceptAlreadyAcceptedOrderConflict() {
 
-    }*/
+        courierAccountAPI.registerNewCourierAccount(courierAccount).assertThat().statusCode(SC_CREATED);
+        String orderTrackNumber = ordersAPI.createNewOrder(order).assertThat().statusCode(SC_CREATED).extract().path("track").toString();
+        String orderId = ordersAPI.getOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK).extract().path("order.id").toString();
+        courierId = courierAccountAPI.loginCourierAccount(CourierCredentials).assertThat().statusCode(SC_OK).extract().path("id").toString();
+        ValidatableResponse response = ordersAPI.acceptOrderByOrderId(orderId, courierId);
+        response.assertThat().statusCode(SC_OK).and().body("ok", equalTo(true));
+        response = ordersAPI.acceptOrderByOrderId(orderId, courierId);
+        response.assertThat().assertThat().statusCode(SC_CONFLICT).and().body("message", equalTo("Этот заказ уже в работе"));
+
+
+    }
+
+    @After
+    public void tearDown() {
+        if(courierId!=null)
+        courierAccountAPI.deleteCourierAccount(courierId).assertThat().statusCode(SC_OK);
+
+    }
 }
