@@ -1,9 +1,11 @@
 package ru.praktikum_services.qa_scooter.model;
 
 
+import com.github.javafaker.Faker;
 import org.apache.commons.lang3.RandomStringUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 
 public class Order {
@@ -19,12 +21,13 @@ public class Order {
     private final String[] color;
 
     public Order(String[] color, int metroStationId) {
+        Faker faker = new Faker(new Locale("ru"));
         this.color = color;
         this.metroStation = metroStationId;
-        this.firstName = RandomStringUtils.randomAlphabetic(10);
-        this.lastName = RandomStringUtils.randomAlphabetic(10);
-        this.address = RandomStringUtils.randomAlphabetic(10);
-        this.phone = "+" + RandomStringUtils.randomNumeric(10);
+        this.firstName = faker.name().firstName();
+        this.lastName = faker.name().lastName();
+        this.address = faker.address().fullAddress();
+        this.phone = faker.phoneNumber().phoneNumber();
         this.deliveryDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         this.comment = RandomStringUtils.randomAlphabetic(20);
         this.rentTime = (int) (Math.random() * 6) + 1;
