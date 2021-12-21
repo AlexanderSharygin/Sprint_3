@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.praktikum_services.qa_scooter.model.Order;
 import ru.praktikum_services.qa_scooter.model.OrdersAPI;
-import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.notNullValue;
 
 
@@ -42,14 +41,13 @@ public class CreateOrderParametrizedTests {
         };
     }
 
-
     @Test
     @DisplayName("Create orders with different Colors value")
     public void createNewOrderSuccess() {
         Order order = new Order(color, 4);
         ValidatableResponse response = ordersAPI.createNewOrder(order);
         String orderTrackNumber = response.assertThat().statusCode(expectedStatus).and().body(expectedBody, notNullValue()).extract().path("track").toString();
-        ordersAPI.cancelOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(SC_OK);
+        ordersAPI.cancelOrderByTrackNumber(orderTrackNumber).assertThat().statusCode(expectedStatus);
 
     }
 }
