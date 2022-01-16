@@ -37,7 +37,7 @@ public class GetOrdersListTests {
         courierId = null;
     }
 
-    @Test
+   /* @Test
     @DisplayName("Get orders list for courier with correct ID and check result")
     public void getOrdersListForCertainCourierByCourierIdAndCheckReceivedListSuccess() {
 
@@ -48,7 +48,7 @@ public class GetOrdersListTests {
         ValidatableResponse response = ordersAPI.getOrdersListForCourier(courierId, null, null, null);
         response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(10));
 
-    }
+    }*/
 
     @Test
     @DisplayName("Get available orders list for any courier and check result")
@@ -61,7 +61,7 @@ public class GetOrdersListTests {
 
     }
 
-    @Test
+ /*   @Test
     @DisplayName("Get orders list for courier with correct ID near metrostations and check result")
     public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() {
 
@@ -83,7 +83,7 @@ public class GetOrdersListTests {
         response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(8));
 
 
-    }
+    }*/
 
     @Test
     @DisplayName("Get orders list available for any courier and check result")

@@ -38,7 +38,7 @@ public class LoginCourierAccountTests {
         response.assertThat().statusCode(SC_OK).and().body("id", notNullValue());
         courierId = response.assertThat().extract().path("id");
     }
-    @Test
+  /*  @Test
     @DisplayName("Login without password")
     public void loginCourierAccountWithoutPasswordBadRequest()  {
 
@@ -47,7 +47,7 @@ public class LoginCourierAccountTests {
         response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для входа"));
         credentials.setPassword(courierAccount.getPassword());
         courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
-    }
+    }*/
 
     @Test
     @DisplayName("Login with Empty password")

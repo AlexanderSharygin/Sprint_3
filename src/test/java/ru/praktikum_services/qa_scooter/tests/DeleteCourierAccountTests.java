@@ -36,14 +36,14 @@ public class DeleteCourierAccountTests {
         response.assertThat().statusCode(SC_OK).and().body("ok", equalTo(true));
 
     }
-    @Test
+  /*  @Test
     @DisplayName("Delete courier account without ID")
     public void deleteCourierAccountWithEmptyIdBadRequest() {
 
         ValidatableResponse response = courierAccountAPI.deleteCourierAccount("");
         response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo( "Недостаточно данных для удаления курьера"));
 
-    }
+    }*/
     @Test
     @DisplayName("Delete courier account by wrong ID")
     public void deleteCourierAccountWithWrongIdBadRequest() {

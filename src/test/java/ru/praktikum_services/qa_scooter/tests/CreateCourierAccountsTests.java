@@ -72,7 +72,7 @@ public class CreateCourierAccountsTests {
 
     }
 
-    @Test
+   /* @Test
     @DisplayName("Register account with duplicated username and with password")
     public void registerNewCourierAccountWithDuplicatedUsernameConflict() {
 
@@ -84,7 +84,7 @@ public class CreateCourierAccountsTests {
         courierId = courierAccountAPI.loginCourierAccount(credentials).assertThat().statusCode(SC_OK).extract().path("id");
 
 
-    }
+    }*/
 
     @After
     public void tearDown() {
