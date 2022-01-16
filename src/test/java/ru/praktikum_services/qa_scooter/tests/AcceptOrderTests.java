@@ -47,7 +47,7 @@ public class AcceptOrderTests {
 
     }
 
-    /*@Test
+    @Test
     @DisplayName("Accept new order with empty order ID for courier with correct ID")
     public void acceptOrderWithoutOrderNumberBadRequest() {
 
@@ -57,7 +57,7 @@ public class AcceptOrderTests {
         response.assertThat().statusCode(SC_BAD_REQUEST).and().body("message", equalTo("Недостаточно данных для поиска"));
 
 
-    }*/
+    }
 
     @Test
     @DisplayName("Accept new order with correct order ID without courier")

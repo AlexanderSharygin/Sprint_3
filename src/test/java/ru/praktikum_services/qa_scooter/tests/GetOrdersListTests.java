@@ -61,7 +61,7 @@ public class GetOrdersListTests {
 
     }
 
- /*   @Test
+   @Test
     @DisplayName("Get orders list for courier with correct ID near metrostations and check result")
     public void getOrdersListForCertainCourierNearStationsAndCheckReceivedListSuccess() {
 
@@ -83,7 +83,7 @@ public class GetOrdersListTests {
         response.assertThat().statusCode(SC_OK).and().body("orders.size()", is(8));
 
 
-    }*/
+    }
 
     @Test
     @DisplayName("Get orders list available for any courier and check result")
